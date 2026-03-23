@@ -8,11 +8,13 @@ import {
   getDocumentById,
   updateDocument,
   deleteDocument,
+  notifyDocument,
 } from "../controllers/document.controller.js";
 
 // CREATE
 router.post("/", upload.single("file"), createDocument);
-
+// NOTIFY
+router.post("/:id/notify", notifyDocument);
 // READ all
 router.get("/", getAllDocuments);
 

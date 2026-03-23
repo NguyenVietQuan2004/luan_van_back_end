@@ -1,5 +1,6 @@
 import Document from "../models/document/document.model.js";
-// services/document.service.js
+import { getPartyEmails } from "../controllers/partyEmails.controller.js"; //
+
 export const createDocument = async (data) => {
   try {
     const document = new Document(data);
@@ -57,5 +58,87 @@ export const deleteDocument = async (id) => {
     return { message: "Xóa document thành công", id };
   } catch (error) {
     throw new Error(`Lỗi khi xóa document: ${error.message}`);
+  }
+};
+
+import nodemailer from "nodemailer";
+import path from "path"; // Thêm import này
+import fs from "fs"; // Để check file tồn tại (tùy chọn)
+
+// Transporter (giữ nguyên như cũ)
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT),
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: { rejectUnauthorized: false },
+});
+// ====================== GỬI THÔNG BÁO ======================
+export const sendNotificationEmails = async (document) => {
+  // const emails = (process.env.PARTY_EMAILS || "")
+  //   .split(",")
+  //   .map((e) => e.trim())
+  //   .filter(Boolean);
+  const emails = await getPartyEmails();
+  if (emails.length === 0) {
+    throw new Error("Chưa có email đảng viên nào được cấu hình trong .env");
+  }
+
+  const deadlineText = document.deadline
+    ? new Date(document.deadline).toLocaleDateString("vi-VN", { dateStyle: "long" })
+    : "Không có deadline";
+
+  // Xây dựng đường dẫn file tuyệt đối
+  const uploadsBase = process.env.UPLOADS_DIR || path.join(__dirname, "..", "public", "uploads");
+  const fileFullPath = path.join(uploadsBase, path.basename(document.file_path)); // Chỉ lấy tên file để tránh lỗi path
+
+  // Check file tồn tại (tùy chọn, tránh lỗi crash)
+  if (!fs.existsSync(fileFullPath)) {
+    console.warn(`File không tồn tại để attach: ${fileFullPath}`);
+    // Có thể throw error hoặc tiếp tục gửi mà không attach
+    // throw new Error("File đính kèm không tồn tại");
+  }
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || '"Thông báo Đảng" <no-reply@yourdomain.com>',
+    to: emails.join(", "), // Gửi bulk cho tất cả
+    subject: `Thông báo tài liệu: ${document.file_name}`,
+    text: `
+Tài liệu cần xử lý:
+
+Tên file: ${document.file_name}
+Tóm tắt: ${document.summary || "Không có tóm tắt"}
+Deadline: ${deadlineText}
+
+Vui lòng kiểm tra và xử lý trước hạn.
+File đính kèm: ${document.file_name}
+    `,
+    html: `
+      <h3>Tài liệu cần xử lý</h3>
+      <p><strong>Tên file:</strong> ${document.file_name}</p>
+      <p><strong>Tóm tắt:</strong> ${document.summary || "Không có tóm tắt"}</p>
+      <p><strong>Hạn thực hiện:</strong> ${deadlineText}</p>
+      <hr>
+      <p>File gốc đã được đính kèm bên dưới.</p>
+      <p>Vui lòng kiểm tra và xử lý trước deadline.</p>
+    `,
+    attachments: [
+      {
+        filename: document.file_name, // Tên file hiển thị cho người nhận
+        path: fileFullPath, // Đường dẫn tuyệt đối trên server
+        // contentType: 'application/pdf',     // Tùy chọn: Nodemailer tự detect từ extension
+      },
+    ],
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Đã gửi thông báo (có đính kèm file) đến ${emails.length} đảng viên | MessageId: ${info.messageId}`);
+  } catch (err) {
+    console.error("Gửi email thất bại:", err);
+    throw new Error(`Lỗi gửi email: ${err.message}`);
   }
 };

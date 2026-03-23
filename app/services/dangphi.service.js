@@ -92,12 +92,10 @@ export const getById = async (id) => {
 export const update = async (id, payload) => {
   try {
     // Nếu update truy_thu hoặc ghi_chu → tính lại tong
-    console.log(payload);
     const updated = await DangPhi.findByIdAndUpdate(id, payload, { new: true, runValidators: true });
     if (!updated) throw new Error("Không tìm thấy để cập nhật");
     if (payload.truy_thu !== undefined) {
       updated.tong_dang_phi = updated.dang_phi + updated.truy_thu;
-      console.log(updated.dang_phi, updated.truy_thu, updated.dang_phi + updated.truy_thu);
       await updated.save();
     }
 

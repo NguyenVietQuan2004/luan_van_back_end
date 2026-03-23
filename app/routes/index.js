@@ -9,6 +9,7 @@ import hesoluongRoutes from "./hesoluong.route.js";
 import luongcosoRoutes from "./luongcoso.route.js";
 import dangvienphiRoutes from "./dangvienphi.route.js";
 import dangphiRoutes from "./dangphi.route.js";
+import partyEmailsRoutes from "./partyEmails.routes.js";
 import nopdangphicaptrenRoutes from "./nopdangphicaptren.route.js";
 
 const router = express.Router();
@@ -17,7 +18,7 @@ router.use("/luongcoso", luongcosoRoutes);
 router.use("/dangvienphi", dangvienphiRoutes);
 router.use("/dangphi", dangphiRoutes);
 router.use("/nopdangphicaptren", nopdangphicaptrenRoutes);
-
+router.use("/party-emails", partyEmailsRoutes);
 router.use("/contest-registrations", contestReRoutes);
 router.use("/contests", contestRoutes);
 router.use("/steps", stepRouter);

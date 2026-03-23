@@ -24,7 +24,6 @@ export const updateContestCtrl = async (req, res) => {
     if (req.file) {
       updateData.rules_file = `/uploads/${req.file.filename}`;
     }
-    console.log("Update data:", updateData);
     const updated = await contestService.updateContest(req.params.id, updateData);
     res.json(updated);
   } catch (err) {

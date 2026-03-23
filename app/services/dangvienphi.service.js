@@ -68,9 +68,30 @@ export const update = async (id, payload) => {
 
 export const remove = async (id) => {
   try {
-    const deleted = await DangVienPhi.findByIdAndDelete(id);
-    if (!deleted) throw new Error("Không tìm thấy thông tin đảng viên phí để xóa");
-    return { success: true, message: "Xóa thành công" };
+    // 1. Tìm bản ghi DangVienPhi cần xóa
+    const dangVienPhi = await DangVienPhi.findById(id);
+    if (!dangVienPhi) {
+      throw new Error("Không tìm thấy thông tin đảng viên phí để xóa");
+    }
+
+    // 2. Kiểm tra xem có bản ghi đảng phí nào (DangPhi) đang tham chiếu đến nó không
+    const dangPhiTonTai = await DangPhi.findOne({
+      dangvien_phi_id: id, // hoặc: dangvien_phi_id: dangVienPhi._id
+    }).lean(); // lean để nhanh, không cần full document
+
+    if (dangPhiTonTai) {
+      throw new Error(
+        `Không thể xóa thông tin đảng viên phí này vì đã có dữ liệu đảng phí được tính toán (có ít nhất 1 tháng/năm đã thu đảng phí)`,
+      );
+    }
+
+    // 3. Nếu không có đảng phí nào → cho phép xóa
+    await DangVienPhi.findByIdAndDelete(id);
+
+    return {
+      success: true,
+      message: "Xóa thông tin đảng viên phí thành công",
+    };
   } catch (err) {
     throw new Error(err.message || "Lỗi khi xóa thông tin đảng viên phí");
   }

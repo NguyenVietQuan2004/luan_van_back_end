@@ -81,3 +81,22 @@ export const deleteDocument = async (req, res) => {
     return res.status(404).json({ message: error.message });
   }
 };
+
+export const notifyDocument = async (req, res) => {
+  try {
+    const doc = await documentService.getDocumentById(req.params.id);
+
+    // Gọi hàm gửi mail
+    await documentService.sendNotificationEmails(doc);
+
+    return res.json({
+      message: "Đã gửi thông báo thành công đến tất cả đảng viên!",
+      documentId: doc._id,
+    });
+  } catch (error) {
+    console.error("Notify error:", error);
+    return res.status(500).json({
+      message: error.message || "Lỗi khi gửi thông báo",
+    });
+  }
+};

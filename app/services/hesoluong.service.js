@@ -42,14 +42,35 @@ export const update = async (id, payload) => {
 
 export const remove = async (id) => {
   try {
-    const deleted = await HeSoLuong.findByIdAndDelete(id);
-    if (!deleted) throw new Error("Không tìm thấy hệ số lương để xóa");
-    return { success: true, message: "Xóa thành công" };
+    // 1. Tìm bản ghi hệ số lương cần xóa
+    const heSoLuong = await HeSoLuong.findById(id);
+    if (!heSoLuong) {
+      throw new Error("Không tìm thấy hệ số lương để xóa");
+    }
+
+    // 2. Kiểm tra xem có đảng viên phí nào đang dùng cặp ma_ngach + bac này không
+    const dangVienDangDung = await DangVienPhi.findOne({
+      ma_ngach: heSoLuong.ma_ngach,
+      bac: heSoLuong.bac,
+    }).lean(); // lean để nhanh hơn, không cần hydrate document
+
+    if (dangVienDangDung) {
+      throw new Error(
+        `Không thể xóa hệ số lương này vì đang có đảng viên sử dụng (ma_ngach: ${heSoLuong.ma_ngach}, bac: ${heSoLuong.bac})`,
+      );
+    }
+
+    // 3. Nếu không ai dùng → tiến hành xóa
+    await HeSoLuong.findByIdAndDelete(id);
+
+    return {
+      success: true,
+      message: "Xóa hệ số lương thành công",
+    };
   } catch (err) {
     throw new Error(err.message || "Lỗi khi xóa hệ số lương");
   }
 };
-
 // Bonus: Tìm hệ số lương theo ma_ngach và bac (dùng nhiều trong tính đảng phí)
 export const findByNgachAndBac = async (ma_ngach, bac) => {
   try {
