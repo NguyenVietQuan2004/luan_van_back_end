@@ -84,3 +84,21 @@ export const remove = async (id) => {
     throw new Error(err.message || "Lỗi khi xóa đảng viên");
   }
 };
+
+// dangvien.service.js
+export const getAllPartyEmails = async () => {
+  try {
+    const dangViens = await DangVien.find(
+      {
+        deletedAt: null, // chỉ lấy đảng viên chưa xóa
+        email: { $exists: true, $ne: null, $ne: "" }, // email phải tồn tại và không rỗng
+      },
+      { email: 1, _id: 0 }, // chỉ lấy trường email (projection - tối ưu)
+    ).lean();
+
+    return dangViens.map((dv) => dv.email).filter(Boolean); // đảm bảo không có null/undefined
+  } catch (error) {
+    console.error("Lỗi lấy danh sách email đảng viên:", error);
+    throw new Error("Không thể lấy danh sách email đảng viên");
+  }
+};

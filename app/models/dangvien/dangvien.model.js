@@ -3,6 +3,11 @@ import mongoose from "mongoose";
 const DangVienSchema = new mongoose.Schema(
   {
     so_tt: Number,
+    email: String,
+    la_cam_tinh_dang: {
+      type: Boolean,
+      default: false,
+    },
     ho_ten: String,
     ho_ten_khai_sinh: String,
     ngay_sinh: Date,

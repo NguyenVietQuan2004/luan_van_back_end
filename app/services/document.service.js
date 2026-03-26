@@ -1,6 +1,5 @@
 import Document from "../models/document/document.model.js";
-import { getPartyEmails } from "../controllers/partyEmails.controller.js"; //
-
+import * as dangVienService from "../services/dangvien.service.js";
 export const createDocument = async (data) => {
   try {
     const document = new Document(data);
@@ -82,7 +81,7 @@ export const sendNotificationEmails = async (document) => {
   //   .split(",")
   //   .map((e) => e.trim())
   //   .filter(Boolean);
-  const emails = await getPartyEmails();
+  const emails = await dangVienService.getAllPartyEmails();
   if (emails.length === 0) {
     throw new Error("Chưa có email đảng viên nào được cấu hình trong .env");
   }
