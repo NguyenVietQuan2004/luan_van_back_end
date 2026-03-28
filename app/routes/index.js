@@ -12,6 +12,7 @@ import dangphiRoutes from "./dangphi.route.js";
 import partyEmailsRoutes from "./partyEmails.routes.js";
 import nopdangphicaptrenRoutes from "./nopdangphicaptren.route.js";
 import contestStatsRouter from "./contestStats.route.js";
+import reportRoutes from "./report.route.js";
 
 const router = express.Router();
 router.use(
@@ -34,4 +35,5 @@ router.use("/steps", stepRouter);
 router.use("/applicants", applicantRouter);
 router.use("/dang-vien", dangVienRoutes);
 router.use("/documents", documentRouter);
+router.use("/reports", reportRoutes);
 export default router;
