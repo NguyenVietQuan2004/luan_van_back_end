@@ -127,7 +127,7 @@ export const tinhDangPhiChoTatCaDangVienThangHienTai = async () => {
   try {
     const now = new Date();
     const thang = now.getMonth() + 1;
-    const nam = now.getFullYear() + 1;
+    const nam = now.getFullYear();
 
     // Lấy tất cả đảng viên phí
     const tatCaDVP = await DangVienPhi.find().populate("dang_vien_id");
@@ -151,15 +151,16 @@ export const tinhDangPhiChoTatCaDangVienThangHienTai = async () => {
 
         const { thu_nhap, dang_phi } = await tinhThuNhapVaDangPhi(dvp._id, thang, nam);
         const tong_dang_phi = dang_phi + 0; // truy_thu mặc định 0
-
+        const truy_thu = Math.floor(Math.random() * (100000 - 20000 + 1)) + 20000;
         await DangPhi.create({
           dangvien_phi_id: dvp._id,
           thang,
           nam,
           thu_nhap,
           dang_phi,
-          truy_thu: 0,
-          tong_dang_phi,
+          da_thu: truy_thu + dang_phi,
+          truy_thu,
+          tong_dang_phi: truy_thu + dang_phi,
         });
 
         createdCount++;

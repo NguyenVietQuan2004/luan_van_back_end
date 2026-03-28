@@ -14,6 +14,10 @@ const DocumentSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  reminderSent: {
+    type: Boolean,
+    default: false,
+  },
   deadline: {
     type: Date,
     default: null,

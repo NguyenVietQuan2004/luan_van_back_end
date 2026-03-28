@@ -38,11 +38,6 @@ const NopDangPhiCapTrenSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-
-    nguoi_nhan: {
-      type: String,
-      default: "",
-    },
   },
   { timestamps: true },
 );

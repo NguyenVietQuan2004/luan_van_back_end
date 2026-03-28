@@ -2,9 +2,13 @@ import * as applicantService from "../services/applicant.service.js";
 import { parseJsonField } from "../utils/utils.js";
 
 export const createApplicantCtrl = async (req, res) => {
-  const parsedData = parseJsonField(req.body.data);
-  const data = await applicantService.createApplicant(parsedData);
-  res.status(201).json(data);
+  try {
+    const parsedData = parseJsonField(req.body.data);
+    const data = await applicantService.createApplicant(parsedData?.dang_vien_id);
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(400).json(error);
+  }
 };
 
 export const getAllApplicantsCtrl = async (req, res) => {

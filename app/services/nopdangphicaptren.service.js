@@ -56,9 +56,10 @@ export const getById = async (id) => {
   }
 };
 
-export const getByThangNam = async (thang, nam) => {
+export const getByThangNam = async (nam) => {
   try {
-    const record = await NopDangPhiCapTren.findOne({ thang, nam });
+    const record = await NopDangPhiCapTren.find({ nam }).lean();
+    // return await NopDangPhiCapTren.find().sort({ nam: -1, thang: -1 }).lean();
     if (!record) throw new Error("Không tìm thấy bản ghi cho tháng/năm này");
     return record;
   } catch (err) {

@@ -29,8 +29,9 @@ export const getNopDangPhiCapTrenById = async (req, res) => {
 
 export const getNopDangPhiCapTrenByThangNam = async (req, res) => {
   try {
-    const { thang, nam } = req.params;
-    const data = await nopDangPhiCapTrenService.getByThangNam(Number(thang), Number(nam));
+    const { nam } = req.params;
+    // const { thang, nam } = req.params;
+    const data = await nopDangPhiCapTrenService.getByThangNam(Number(nam));
     res.json(data);
   } catch (err) {
     res.status(404).json({ message: err.message });

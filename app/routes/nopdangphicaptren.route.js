@@ -15,7 +15,8 @@ router.post("/", createNopDangPhiCapTren);
 router.get("/", getAllNopDangPhiCapTren);
 router.get("/kiem-tra", kiemTraDaNopDu); // ví dụ: /api/nopdangphicaptren/kiem-tra?thang=1&nam=2026
 router.get("/:id", getNopDangPhiCapTrenById);
-router.get("/:thang/:nam", getNopDangPhiCapTrenByThangNam);
+router.get("/nam/:nam", getNopDangPhiCapTrenByThangNam);
+// router.get("/:thang/:nam", getNopDangPhiCapTrenByThangNam);
 router.put("/:id", updateNopDangPhiCapTren);
 router.delete("/:id", deleteNopDangPhiCapTren);
 

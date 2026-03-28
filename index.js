@@ -66,3 +66,19 @@ cron.schedule("*/5 * * * *", () => {
 app.listen(port, () => {
   console.log(`Server chạy ở http://localhost:${port}`);
 });
+// import DangPhi from "./app/models/dangphi/dangphi.model.js";
+// (async () => {
+//   try {
+//     const result = await DangPhi.deleteMany({
+//       $or: [{ thang: { $ne: 3 } }, { nam: { $ne: 2026 } }],
+//     });
+
+//     console.log(`Đã xóa ${result.deletedCount} bản ghi DangPhi (không phải 3/2026)`);
+//   } catch (error) {
+//     console.error("Lỗi khi cleanup DangPhi:", error);
+//   }
+// })();
+import { startReminderScheduler } from "./app/services/reminder.service.js";
+
+// ... sau khi connect MongoDB
+startReminderScheduler(); // hoặc startFrequentReminderScheduler()

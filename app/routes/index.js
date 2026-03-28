@@ -11,8 +11,17 @@ import dangvienphiRoutes from "./dangvienphi.route.js";
 import dangphiRoutes from "./dangphi.route.js";
 import partyEmailsRoutes from "./partyEmails.routes.js";
 import nopdangphicaptrenRoutes from "./nopdangphicaptren.route.js";
+import contestStatsRouter from "./contestStats.route.js";
 
 const router = express.Router();
+router.use(
+  "/contest-stats",
+  (req, res, next) => {
+    console.log("da chay vao contest-stats");
+    next();
+  },
+  contestStatsRouter,
+); // ← Thêm dòng này
 router.use("/hesoluong", hesoluongRoutes);
 router.use("/luongcoso", luongcosoRoutes);
 router.use("/dangvienphi", dangvienphiRoutes);

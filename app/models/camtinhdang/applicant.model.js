@@ -2,9 +2,12 @@ import mongoose from "mongoose";
 
 const ApplicantSchema = new mongoose.Schema(
   {
-    name: String,
-    dob: Date,
-    gender: String,
+    dang_vien_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "dangvien", // tên model của anh là "dangvien"
+      required: true,
+      unique: true, // đảm bảo 1 cảm tình chỉ ref 1 đảng viên
+    },
 
     steps: [
       {

@@ -1,14 +1,58 @@
 import DangVien from "../models/dangvien/dangvien.model.js";
+// export const create = async (payload) => {
+
+//   const count = await DangVien.countDocuments();
+
+//   const newData = {
+//     ...payload,
+//     so_tt: count + 1,
+//   };
+
+//   return DangVien.create(newData);
+// };
+
 export const create = async (payload) => {
-  const count = await DangVien.countDocuments();
+  const count = await DangVien.countDocuments({ deletedAt: null });
 
   const newData = {
     ...payload,
     so_tt: count + 1,
   };
 
-  return DangVien.create(newData);
+  // Tạo đảng viên trước
+  const newDangVien = await DangVien.create(newData);
+
+  // Nếu là cảm tình đảng → tự động tạo hồ sơ Applicant
+  if (newDangVien.la_cam_tinh_dang === true) {
+    try {
+      // Kiểm tra xem đã có Applicant chưa (phòng trường hợp lỗi)
+      const existingApplicant = await Applicant.findOne({ dang_vien_id: newDangVien._id });
+      if (!existingApplicant) {
+        const steps = await Step.find().sort({ step_order: 1 });
+
+        const stepData = steps.map((s) => ({
+          step_id: s._id,
+          completed: false,
+          details: {},
+        }));
+
+        await Applicant.create({
+          dang_vien_id: newDangVien._id,
+          steps: stepData,
+        });
+
+        console.log(`✅ Đã tự động tạo hồ sơ cảm tình đảng cho đảng viên ID: ${newDangVien._id}`);
+      }
+    } catch (applicantError) {
+      console.error("❌ Lỗi khi tự động tạo Applicant:", applicantError);
+      // Không throw lỗi để tránh làm hỏng việc tạo đảng viên
+      // Có thể ghi log hoặc xử lý thêm nếu cần
+    }
+  }
+
+  return newDangVien; // Trả về đảng viên (frontend chủ yếu cần thông tin này)
 };
+
 export const getAll = () => {
   return DangVien.find({ deletedAt: null }).sort({ createdAt: 1 });
 };
@@ -17,8 +61,58 @@ export const getById = (id) => {
   return DangVien.findById(id);
 };
 
-export const update = (id, payload) => {
-  return DangVien.findByIdAndUpdate(id, payload, { new: true });
+// export const update = (id, payload) => {
+//   return DangVien.findByIdAndUpdate(id, payload, { new: true });
+// };
+
+// dangvien.service.js
+import { Applicant } from "../models/camtinhdang/applicant.model.js";
+import { Step } from "../models/camtinhdang/step.model.js";
+export const update = async (id, payload) => {
+  // Cập nhật thông tin đảng viên
+  const updatedDangVien = await DangVien.findByIdAndUpdate(id, payload, { new: true });
+
+  if (!updatedDangVien) {
+    throw new Error("Không tìm thấy đảng viên để cập nhật");
+  }
+
+  const isCamTinhDang = updatedDangVien.la_cam_tinh_dang === true;
+
+  try {
+    if (isCamTinhDang) {
+      // === TRƯỜNG HỢP: Là cảm tình đảng ===
+      const existingApplicant = await Applicant.findOne({ dang_vien_id: id });
+
+      if (!existingApplicant) {
+        // Tạo mới Applicant nếu chưa có
+        const steps = await Step.find().sort({ step_order: 1 });
+        const stepData = steps.map((s) => ({
+          step_id: s._id,
+          completed: false,
+          details: {},
+        }));
+
+        await Applicant.create({
+          dang_vien_id: id,
+          steps: stepData,
+        });
+
+        console.log(`✅ Đã tự động tạo hồ sơ cảm tình đảng cho đảng viên ${id}`);
+      }
+    } else {
+      // === TRƯỜNG HỢP: Không còn là cảm tình đảng nữa ===
+      const deletedApplicant = await Applicant.findOneAndDelete({ dang_vien_id: id });
+
+      if (deletedApplicant) {
+        console.log(`🗑️ Đã xóa hồ sơ cảm tình đảng của đảng viên ${id} vì la_cam_tinh_dang = false`);
+      }
+    }
+  } catch (error) {
+    console.error("Lỗi khi xử lý Applicant khi update đảng viên:", error);
+    // Không throw lỗi để tránh làm hỏng việc update đảng viên chính
+  }
+
+  return updatedDangVien;
 };
 
 // export const remove = async (id) => {
