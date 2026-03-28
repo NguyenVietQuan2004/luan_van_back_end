@@ -1,13 +1,10 @@
-// controllers/document.controller.js
 import * as documentService from "../services/document.service.js";
 import { parseJsonField } from "../utils/utils.js";
 
 export const createDocument = async (req, res) => {
   try {
-    // Parse metadata từ field "data" (JSON string)
     const parsedData = parseJsonField(req.body.data || "{}");
 
-    // File bắt buộc khi create
     if (!req.file) {
       return res.status(400).json({ message: "Vui lòng upload file" });
     }
@@ -15,7 +12,7 @@ export const createDocument = async (req, res) => {
     const documentData = {
       file_name: req.file.originalname,
       file_path: `/uploads/${req.file.filename}`,
-      ...parsedData, // markdown, summary, deadline sẽ được merge vào đây
+      ...parsedData,
     };
 
     const newDoc = await documentService.createDocument(documentData);
@@ -50,12 +47,9 @@ export const getDocumentById = async (req, res) => {
 
 export const updateDocument = async (req, res) => {
   try {
-    // Parse metadata từ field "data" (nếu có)
     const parsedData = parseJsonField(req.body.data || "{}");
 
     const updateData = { ...parsedData };
-
-    // Nếu có file mới thì cập nhật file
     if (req.file) {
       updateData.file_name = req.file.originalname;
       updateData.file_path = `/uploads/${req.file.filename}`;

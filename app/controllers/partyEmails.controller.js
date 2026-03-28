@@ -1,6 +1,5 @@
 import PartyEmails from "../models/document/partyEmails.model.js";
 
-// Lấy danh sách email (dùng khi gửi thông báo)
 export const getPartyEmails = async () => {
   const doc = await PartyEmails.findOne().lean();
   if (!doc || !doc.emails) return [];
@@ -11,7 +10,6 @@ export const getPartyEmails = async () => {
     .filter(Boolean);
 };
 
-// Admin: Lấy chuỗi hiện tại để hiển thị form
 export const getEmailsString = async (req, res) => {
   try {
     const doc = await PartyEmails.findOne();
@@ -21,12 +19,10 @@ export const getEmailsString = async (req, res) => {
   }
 };
 
-// Admin: Cập nhật (tạo mới nếu chưa có)
 export const updateEmails = async (req, res) => {
   try {
     const { emails } = req.body; // chuỗi: "a@gmail.com,b@gmail.com"
 
-    // Validate cơ bản (tùy chọn)
     if (typeof emails !== "string") {
       return res.status(400).json({ error: "Dữ liệu không hợp lệ" });
     }

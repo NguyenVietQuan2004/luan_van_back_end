@@ -25,14 +25,12 @@ export const createReportCodeCtrl = async (req, res) => {
     let codeData = {};
 
     if (req.file) {
-      // Có upload file template
       const parsedData = parseJsonField(req.body.data);
       codeData = {
         ...parsedData,
         template_file: `/uploads/${req.file.filename}`, // hoặc bạn có thể đổi thành template_url nếu muốn
       };
     } else {
-      // Không có file
       const parsedData = parseJsonField(req.body.data || req.body);
       codeData = { ...parsedData };
     }

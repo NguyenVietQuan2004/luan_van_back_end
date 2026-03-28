@@ -1,11 +1,6 @@
 import { Step } from "../models/camtinhdang/step.model.js";
 import { Applicant } from "../models/camtinhdang/applicant.model.js";
 
-// CREATE 1 step
-// export const createStep = async (data) => {
-//   return await Step.create(data);
-// };
-
 export const createStep = async (data) => {
   // 1. Tạo Step mới
   const newStep = await Step.create(data);

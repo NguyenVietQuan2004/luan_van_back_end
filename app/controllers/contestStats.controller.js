@@ -1,5 +1,3 @@
-// controllers/contest.stats.controller.js
-
 import * as statsService from "../services/contestStats.service.js";
 
 export const getContestParticipationStats = async (req, res) => {

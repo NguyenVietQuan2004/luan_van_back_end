@@ -1,15 +1,4 @@
 import DangVien from "../models/dangvien/dangvien.model.js";
-// export const create = async (payload) => {
-
-//   const count = await DangVien.countDocuments();
-
-//   const newData = {
-//     ...payload,
-//     so_tt: count + 1,
-//   };
-
-//   return DangVien.create(newData);
-// };
 
 export const create = async (payload) => {
   const count = await DangVien.countDocuments({ deletedAt: null });
@@ -19,10 +8,8 @@ export const create = async (payload) => {
     so_tt: count + 1,
   };
 
-  // Tạo đảng viên trước
   const newDangVien = await DangVien.create(newData);
 
-  // Nếu là cảm tình đảng → tự động tạo hồ sơ Applicant
   if (newDangVien.la_cam_tinh_dang === true) {
     try {
       // Kiểm tra xem đã có Applicant chưa (phòng trường hợp lỗi)
@@ -45,8 +32,6 @@ export const create = async (payload) => {
       }
     } catch (applicantError) {
       console.error("❌ Lỗi khi tự động tạo Applicant:", applicantError);
-      // Không throw lỗi để tránh làm hỏng việc tạo đảng viên
-      // Có thể ghi log hoặc xử lý thêm nếu cần
     }
   }
 
@@ -61,11 +46,6 @@ export const getById = (id) => {
   return DangVien.findById(id);
 };
 
-// export const update = (id, payload) => {
-//   return DangVien.findByIdAndUpdate(id, payload, { new: true });
-// };
-
-// dangvien.service.js
 import { Applicant } from "../models/camtinhdang/applicant.model.js";
 import { Step } from "../models/camtinhdang/step.model.js";
 export const update = async (id, payload) => {
@@ -97,14 +77,14 @@ export const update = async (id, payload) => {
           steps: stepData,
         });
 
-        console.log(`✅ Đã tự động tạo hồ sơ cảm tình đảng cho đảng viên ${id}`);
+        console.log(` Đã tự động tạo hồ sơ cảm tình đảng cho đảng viên ${id}`);
       }
     } else {
       // === TRƯỜNG HỢP: Không còn là cảm tình đảng nữa ===
       const deletedApplicant = await Applicant.findOneAndDelete({ dang_vien_id: id });
 
       if (deletedApplicant) {
-        console.log(`🗑️ Đã xóa hồ sơ cảm tình đảng của đảng viên ${id} vì la_cam_tinh_dang = false`);
+        console.log(`Đã xóa hồ sơ cảm tình đảng của đảng viên ${id} vì la_cam_tinh_dang = false`);
       }
     }
   } catch (error) {
@@ -115,39 +95,16 @@ export const update = async (id, payload) => {
   return updatedDangVien;
 };
 
-// export const remove = async (id) => {
-//   const deleted = await DangVien.findById(id);
-//   if (!deleted || deleted.deletedAt) return null;
-
-//   const deletedSTT = deleted.so_tt;
-
-//   await DangVien.findByIdAndUpdate(id, {
-//     deletedAt: new Date(),
-//   });
-//   await DangVien.updateMany(
-//     {
-//       so_tt: { $gt: deletedSTT },
-//       deletedAt: null,
-//     },
-//     { $inc: { so_tt: -1 } },
-//   );
-
-//   return { success: true };
-// };
-
 import CuocThiDangKy from "../models/contest/contest.registration.model.js";
 export const remove = async (id) => {
   try {
-    // 1. Tìm đảng viên cần xóa (soft delete)
     const dangVien = await DangVien.findById(id);
     if (!dangVien || dangVien.deletedAt) {
       return null; // hoặc throw Error nếu muốn báo rõ
     }
 
-    // 2. Kiểm tra xem đảng viên này có đang đăng ký cuộc thi nào không
     const dangKyTonTai = await CuocThiDangKy.findOne({
       "members.party_member_id": id, // tìm trong mảng members
-      // status: { $in: ["registered", "approved"] }   // ← optional: chỉ tính các đăng ký còn hiệu lực
     }).lean();
 
     if (dangKyTonTai) {
@@ -157,14 +114,12 @@ export const remove = async (id) => {
       );
     }
 
-    // 3. Nếu không có đăng ký nào → tiến hành soft delete + điều chỉnh số thứ tự
     const deletedSTT = dangVien.so_tt;
 
     await DangVien.findByIdAndUpdate(id, {
       deletedAt: new Date(),
     });
 
-    // Điều chỉnh lại so_tt cho các đảng viên còn lại (giữ thứ tự tăng dần)
     await DangVien.updateMany(
       {
         so_tt: { $gt: deletedSTT },

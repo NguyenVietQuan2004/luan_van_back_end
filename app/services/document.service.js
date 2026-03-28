@@ -77,10 +77,6 @@ const transporter = nodemailer.createTransport({
 });
 // ====================== GỬI THÔNG BÁO ======================
 export const sendNotificationEmails = async (document) => {
-  // const emails = (process.env.PARTY_EMAILS || "")
-  //   .split(",")
-  //   .map((e) => e.trim())
-  //   .filter(Boolean);
   const emails = await dangVienService.getAllPartyEmails();
   if (emails.length === 0) {
     throw new Error("Chưa có email đảng viên nào được cấu hình trong .env");
@@ -94,11 +90,8 @@ export const sendNotificationEmails = async (document) => {
   const uploadsBase = process.env.UPLOADS_DIR || path.join(__dirname, "..", "public", "uploads");
   const fileFullPath = path.join(uploadsBase, path.basename(document.file_path)); // Chỉ lấy tên file để tránh lỗi path
 
-  // Check file tồn tại (tùy chọn, tránh lỗi crash)
   if (!fs.existsSync(fileFullPath)) {
     console.warn(`File không tồn tại để attach: ${fileFullPath}`);
-    // Có thể throw error hoặc tiếp tục gửi mà không attach
-    // throw new Error("File đính kèm không tồn tại");
   }
 
   const mailOptions = {

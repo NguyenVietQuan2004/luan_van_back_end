@@ -55,21 +55,6 @@ export const getCurrent = async () => {
   }
 };
 
-// export const update = async (id, payload) => {
-//   try {
-//     // Nếu update thay đổi ngay_ket_thuc hoặc ngay_bat_dau → có thể cần validate thêm
-//     // Nhưng tạm thời giữ đơn giản
-//     const updated = await LuongCoSo.findByIdAndUpdate(id, payload, {
-//       new: true,
-//       runValidators: true,
-//     });
-//     if (!updated) throw new Error("Không tìm thấy mức lương cơ sở để cập nhật");
-//     return updated;
-//   } catch (err) {
-//     throw new Error(err.message || "Lỗi khi cập nhật lương cơ sở");
-//   }
-// };
-
 export const update = async (id, payload) => {
   try {
     // Lấy record hiện tại trước khi update
@@ -103,29 +88,8 @@ export const update = async (id, payload) => {
           $set: { ngay_ket_thuc: newNgayBatDau },
         });
       }
-
-      // Nếu có record sau (ngay_bat_dau > newNgayBatDau) → có thể cần reset ngay_ket_thuc của chúng về null hoặc xử lý khác
-      // Nhưng thường không nên có record tương lai → tạm thời bỏ qua hoặc throw warning
     }
 
-    // Trường hợp 2: Nếu update làm record này hết hiệu lực (set ngay_ket_thuc != null)
-    // → có thể cần tìm record tiếp theo và set nó thành hiện hành (ngay_ket_thuc = null)
-    // Nhưng để đơn giản và tránh phức tạp không cần thiết, ta có thể yêu cầu người dùng tạo record mới thay vì update kiểu này
-    // Nếu muốn hỗ trợ: thêm logic dưới đây (optional)
-
-    // if (isCurrentlyActive && newNgayKetThuc !== null) {
-    //   const nextRecord = await LuongCoSo.findOne({
-    //     ngay_bat_dau: { $gt: currentRecord.ngay_bat_dau },
-    //   }).sort({ ngay_bat_dau: 1 }).limit(1);
-    //
-    //   if (nextRecord) {
-    //     await LuongCoSo.findByIdAndUpdate(nextRecord._id, {
-    //       $set: { ngay_ket_thuc: null },
-    //     });
-    //   }
-    // }
-
-    // Thực hiện update
     const updated = await LuongCoSo.findByIdAndUpdate(id, payload, {
       new: true,
       runValidators: true,
@@ -136,16 +100,6 @@ export const update = async (id, payload) => {
     throw new Error(err.message || "Lỗi khi cập nhật lương cơ sở");
   }
 };
-
-// export const remove = async (id) => {
-//   try {
-//     const deleted = await LuongCoSo.findByIdAndDelete(id);
-//     if (!deleted) throw new Error("Không tìm thấy mức lương cơ sở để xóa");
-//     return { success: true, message: "Xóa thành công" };
-//   } catch (err) {
-//     throw new Error(err.message || "Lỗi khi xóa lương cơ sở");
-//   }
-// };
 
 export const remove = async (id) => {
   try {
@@ -176,10 +130,7 @@ export const remove = async (id) => {
         });
         console.log(`Đã khôi phục mức lương cơ sở hiện hành: ID ${previousRecord._id}`);
       } else {
-        // Không còn record nào trước đó → cảnh báo (có thể throw error hoặc log)
         console.warn("Cảnh báo: Đã xóa mức lương cơ sở hiện hành cuối cùng. Hiện không còn mức nào hiệu lực.");
-        // Tùy business rule: có thể throw error để ngăn xóa
-        // throw new Error("Không thể xóa mức lương cơ sở hiện hành cuối cùng");
       }
     }
 

@@ -1,4 +1,3 @@
-// src/controllers/dangphi.controller.js
 import * as dangPhiService from "../services/dangphi.service.js";
 
 export const createDangPhi = async (req, res) => {
@@ -68,5 +67,3 @@ export const tinhDangPhiThangHienTai = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
-
-// Router

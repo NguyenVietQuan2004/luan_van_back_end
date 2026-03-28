@@ -7,7 +7,6 @@ const tinhThuNhapVaDangPhi = async (dangvien_phi_id, thang, nam) => {
   const dvPhi = await DangVienPhi.findById(dangvien_phi_id).populate("dang_vien_id");
   if (!dvPhi) throw new Error("Không tìm thấy thông tin đảng viên phí");
 
-  // Kiểm tra miễn đảng phí trong tháng/năm này
   const targetDate = new Date(nam, thang - 1, 15); // Ngày giữa tháng để kiểm tra
   const isMien = dvPhi.mien_dang_phi.some((m) => {
     const tu = new Date(m.tu_ngay);
@@ -22,16 +21,8 @@ const tinhThuNhapVaDangPhi = async (dangvien_phi_id, thang, nam) => {
   // Lấy hệ số lương
   const hsl = await HeSoLuong.findOne({ ma_ngach: dvPhi.ma_ngach, bac: dvPhi.bac });
   if (!hsl) throw new Error(`Không tìm thấy hệ số lương cho ngạch ${dvPhi.ma_ngach} bậc ${dvPhi.bac}`);
-  //  chỗ này ko có lưu lại lương cơ sở lúc này
-  // Lấy lương cơ sở hiện hành (hoặc phù hợp thời điểm - tạm lấy null ket thuc)
   const lcs = await LuongCoSo.findOne({ ngay_ket_thuc: null }).sort({ ngay_bat_dau: -1 });
   if (!lcs) throw new Error("Không tìm thấy mức lương cơ sở hiện hành");
-
-  // const luongCoBan = hsl.he_so_luong * lcs.luong_co_so;
-  // const thu_nhap =
-  //   luongCoBan +
-  //   dvPhi.hs_pccv * luongCoBan +
-  //   dvPhi.pc_tham_nien_nha_giao * luongCoBan
 
   const thu_nhap = (dvPhi.hs_pccv + hsl.he_so_luong) * (1 + dvPhi.pc_tham_nien_nha_giao / 100) * lcs.luong_co_so;
 
@@ -91,7 +82,6 @@ export const getById = async (id) => {
 
 export const update = async (id, payload) => {
   try {
-    // Nếu update truy_thu hoặc ghi_chu → tính lại tong
     const updated = await DangPhi.findByIdAndUpdate(id, payload, { new: true, runValidators: true });
     if (!updated) throw new Error("Không tìm thấy để cập nhật");
     if (payload.truy_thu !== undefined) {

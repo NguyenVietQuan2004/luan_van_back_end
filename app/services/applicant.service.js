@@ -1,17 +1,6 @@
 import { Applicant } from "../models/camtinhdang/applicant.model.js";
 import { Step } from "../models/camtinhdang/step.model.js";
 
-// export const createApplicant = async (data) => {
-//   const steps = await Step.find().sort({ step_order: 1 });
-
-//   const stepData = steps.map((s) => ({
-//     step_id: s._id,
-//     completed: false,
-//     details: {},
-//   }));
-
-//   return Applicant.create({ ...data, steps: stepData });
-// };
 import DangVien from "../models/dangvien/dangvien.model.js";
 export const createApplicant = async (dangVienId) => {
   const dangVien = await DangVien.findById(dangVienId);
@@ -30,11 +19,6 @@ export const createApplicant = async (dangVienId) => {
     steps: stepData,
   });
 };
-
-// export const getAllApplicants = () => Applicant.find().populate("steps.step_id", "name step_order template_file");
-
-// export const getApplicantById = (id) =>
-//   Applicant.findById(id).populate("steps.step_id", "name step_order template_file");
 
 export const getAllApplicants = () =>
   Applicant.find()
@@ -85,8 +69,6 @@ export const updateStepWithFile = async (applicantId, stepId, body, file) => {
 
   const step = applicant.steps.find((s) => s.step_id.toString() === stepId);
   if (!step) throw new Error("Step not found");
-
-  // ✅ update completed
   if (body.completed !== undefined) {
     step.completed = body.completed;
   }
@@ -94,13 +76,11 @@ export const updateStepWithFile = async (applicantId, stepId, body, file) => {
     step.details = body.details;
   }
 
-  // ✅ update file nếu có
   if (file) {
     step.file_url = `/uploads/${file.filename}`;
     step.file_name = file.originalname;
     step.uploaded_at = new Date();
 
-    // 👉 optional: auto complete khi upload
     step.completed = true;
   }
 
