@@ -13,6 +13,7 @@ import partyEmailsRoutes from "./partyEmails.routes.js";
 import nopdangphicaptrenRoutes from "./nopdangphicaptren.route.js";
 import contestStatsRouter from "./contestStats.route.js";
 import reportRoutes from "./report.route.js";
+import syllRoutes from "./syll.route.js";
 
 const router = express.Router();
 router.use(
@@ -25,6 +26,7 @@ router.use(
 ); // ← Thêm dòng này
 router.use("/hesoluong", hesoluongRoutes);
 router.use("/luongcoso", luongcosoRoutes);
+router.use("/syll", syllRoutes);
 router.use("/dangvienphi", dangvienphiRoutes);
 router.use("/dangphi", dangphiRoutes);
 router.use("/nopdangphicaptren", nopdangphicaptrenRoutes);
