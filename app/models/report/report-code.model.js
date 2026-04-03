@@ -14,6 +14,9 @@ const ReportCodeSchema = new mongoose.Schema(
       uppercase: true,
       trim: true,
     },
+    danh_sach_de_muc: {
+      type: String,
+    },
     type_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ReportType",
