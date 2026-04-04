@@ -23,6 +23,10 @@ const SyllabusSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    file_path: {
+      type: String,
+      required: true,
+    },
     extractedAt: {
       type: Date,
       default: Date.now,
